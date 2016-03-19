@@ -67,3 +67,6 @@ target/
 
 #ignore virtualenv
 FINME/
+
+# midfile
+.DS_Store
