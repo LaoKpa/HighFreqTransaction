@@ -172,10 +172,17 @@ def label_spread(dataset, step):
 
 # merge dataset
 def merge_dataset(dataset_ls):
-"""
-    Input: list of DataFrame with the same index (number of rows)
-    Output: a big merged DataFrame
-"""
+
+    """
+    Input
+    -----
+    List of DataFrame with the same index (number of rows)
+
+    Output
+    ------
+    A big merged DataFrame
+    """
+
     n = len(dataset_ls)
     ret = pd.DataFrame(index = range(data1.shape[0]))
     for i in dataset_ls:
@@ -185,15 +192,19 @@ def merge_dataset(dataset_ls):
 
 # randomly select given ratio
 def random_subset(dataset,label,ratio,size):
-"""
-    Input: 
+
+    """
+    Input
+    -------- 
         dataset - Whole dataset with all features and labels
         label   - Name of a label, for example 'Y_midprice'
         ratio   - a tuple,  (upward, downward, stationary) ratio, eg: (1,1,2)
         size    - The size of subset 
-    Output: 
+    Output
+    ------
         dataframe -  a dataframe of subset
-"""
+    """
+
     n_u,n_d,n_s = int(ratio[0]/sum(ratio)*size),int(ratio[1]/sum(ratio)*size),int(ratio[2]/sum(ratio)*size )
     ind_u = list(dataset[dataset[label]=="upward"].index)
     ind_d = list(dataset[dataset[label]=="downward"].index)
@@ -207,15 +218,16 @@ def random_subset(dataset,label,ratio,size):
 
 
 ######### preprocession script ##########
-list_df = [data1, feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),label_midprice(data1,step=30),label_spread(data1,step=30)]
+tmp = feature2_2(data1)
+list_df = [data1, feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),label_midprice(tmp,step=30),label_spread(data1,step=30)]
 data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
-data_9to11 = data1.head(203350)
+data_9to11 = data_all.head(203350)
 # data1.shape
 # data1.head(10)
 train_set_midprice = random_subset(data_9to11,"Y_midprice",(1,1,2),30000)
 
-
+train_set_midprice.to_csv("../data/train_set_midprice", sep="\t")
 
 
 

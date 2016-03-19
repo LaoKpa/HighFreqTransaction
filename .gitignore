@@ -64,7 +64,7 @@ target/
 *.ipynb
 
 #Datasets
-.csv
+*.csv
 
 #ignore virtualenv
 FINME/
