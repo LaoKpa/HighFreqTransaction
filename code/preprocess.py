@@ -110,9 +110,10 @@ def feature6(data,delta = 10):
     v6_1 = pd.concat([data.ix[:,bidlist],data.ix[:,asklist]],axis=1).diff(periods = delta, axis = 0).ix[delta:,:]/delta
     v6_2 = pd.concat([data.ix[:,volbidlist],data.ix[:,volasklist]],axis=1).diff(periods = delta, axis = 0).ix[delta:,:]/delta
     v6 = pd.concat([v6_1,v6_2],axis = 1)
+    v6 = pd.concat([v6,pd.DataFrame(index=range(0,10), columns=v6.columns.values)],axis = 0)
+    v6.index =range(data.shape[0])
     return v6;
-
-#v6= v6feature(data1)
+#v6= feature6(data1)
 #v6
 
 #################################### feature 7 #######################################
