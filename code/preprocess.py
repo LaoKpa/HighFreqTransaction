@@ -159,7 +159,7 @@ def label_spread(dataset, step):
     Y_spread[indc1>0] = "upward"
     Y_spread[indc2<0] = "downward"
     Y_spread[-step:] = np.nan
-    return Y_spread
+    return pd.DataFrame({"Y_spread":Y_spread})
 
 
 
@@ -214,12 +214,12 @@ def random_subset(dataset,label,ratio,size):
     indice = np.append(indice,np.random.choice(ind_d,replace=False,size = n_d))
     indice = np.append(indice,np.random.choice(ind_s,replace=False,size = n_s))  
     ret = dataset.loc[np.sort(indice).astype(int),:]
-    return ret
+    return pd.DataFrame(ret)
 
 
 ######### preprocession script ##########
 tmp = feature2_2(data1)
-list_df = [data1, feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),label_midprice(tmp,step=30),label_spread(data1,step=30)]
+list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),label_midprice(tmp,step=30),label_spread(data1,step=30)]
 data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
 data_9to11 = data_all.head(203350)
@@ -227,7 +227,7 @@ data_9to11 = data_all.head(203350)
 # data1.head(10)
 train_set_midprice = random_subset(data_9to11,"Y_midprice",(1,1,2),30000)
 
-train_set_midprice.to_csv("../data/train_set_midprice.csv", sep="\t")
+train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
 
 
 
