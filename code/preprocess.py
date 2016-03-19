@@ -227,7 +227,7 @@ data_9to11 = data_all.head(203350)
 # data1.head(10)
 train_set_midprice = random_subset(data_9to11,"Y_midprice",(1,1,2),30000)
 
-train_set_midprice.to_csv("../data/train_set_midprice", sep="\t")
+train_set_midprice.to_csv("../data/train_set_midprice.csv", sep="\t")
 
 
 
