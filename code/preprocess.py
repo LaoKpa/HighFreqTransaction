@@ -191,7 +191,7 @@ def merge_dataset(dataset_ls):
 
 
 # randomly select given ratio
-def random_subset(dataset,label,ratio,size):
+def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
 
     """
     Input
@@ -200,11 +200,15 @@ def random_subset(dataset,label,ratio,size):
         label   - Name of a label, for example 'Y_midprice'
         ratio   - a tuple,  (upward, downward, stationary) ratio, eg: (1,1,2)
         size    - The size of subset 
+        RT      - If given the ratio or not. If not, just randomly select indices.
     Output
     ------
         dataframe -  a dataframe of subset
     """
-
+    if (RT ==False):
+        indx = np.random.choice(dataset.index,replace=False,size = size)
+        ret = dataset.loc[np.sort(indx),:]
+        return ret
     n_u,n_d,n_s = int(ratio[0]/sum(ratio)*size),int(ratio[1]/sum(ratio)*size),int(ratio[2]/sum(ratio)*size )
     ind_u = list(dataset[dataset[label]=="upward"].index)
     ind_d = list(dataset[dataset[label]=="downward"].index)
@@ -212,10 +216,12 @@ def random_subset(dataset,label,ratio,size):
     indice = np.array([])
     indice = np.append(indice,np.random.choice(ind_u,replace=False,size = n_u))
     indice = np.append(indice,np.random.choice(ind_d,replace=False,size = n_d))
-    indice = np.append(indice,np.random.choice(ind_s,replace=False,size = n_s))  
-    ret = dataset.loc[np.sort(indice).astype(int),:]
-    return pd.DataFrame(ret)
-
+    indice = np.append(indice,np.random.choice(ind_s,replace=False,size = n_s))
+    temp = set(np.sort(indice).astype(int))
+    rest_ind = set(dataset.index) - temp
+    ret = dataset.loc[np.sort(list(temp)),:]
+    rest_data = dataset.loc[np.sort(list(rest_ind)),:]
+    return ret,rest_data
 
 ######### preprocession script ##########
 tmp = feature2_2(data1)
@@ -223,15 +229,12 @@ list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], 
 data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
 data_9to11 = data_all.head(203350)
-# data1.shape
-# data1.head(10)
-train_set_midprice = random_subset(data_9to11,"Y_midprice",(1,1,2),30000)
+train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (1,1,2))
+test_set_midprice = random_subset(rest_set,"Y_midprice",20000,RT = False)
 
+#create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
-
-
-
-
+test_set_midprice.to_csv("../data/test_set_midprice.csv",index = False)
 
 
 
