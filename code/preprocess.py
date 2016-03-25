@@ -205,10 +205,13 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
     ------
         dataframe -  a dataframe of subset
     """
+    np.random.seed(12345)
     if (RT ==False):
-        indx = np.random.choice(dataset.index,replace=False,size = size)
-        ret = dataset.loc[np.sort(indx),:]
-        return ret
+        indx = set(np.random.choice(dataset.index,replace=False,size = size))
+        rest_indx = set(dataset.index) - indx
+        ret = dataset.loc[np.sort(list(indx)),:]
+        rest_data = dataset.loc[np.sort(list(rest_indx)),:]
+        return ret,rest_data
     n_u,n_d,n_s = int(ratio[0]/sum(ratio)*size),int(ratio[1]/sum(ratio)*size),int(ratio[2]/sum(ratio)*size )
     ind_u = list(dataset[dataset[label]=="upward"].index)
     ind_d = list(dataset[dataset[label]=="downward"].index)
@@ -222,7 +225,6 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
     ret = dataset.loc[np.sort(list(temp)),:]
     rest_data = dataset.loc[np.sort(list(rest_ind)),:]
     return ret,rest_data
-
 ######### preprocession script ##########
 tmp = feature2_2(data1)
 list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),label_midprice(tmp,step=30),label_spread(data1,step=30)]
@@ -230,7 +232,7 @@ data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
 data_9to11 = data_all.head(203350)
 train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (1,1,2))
-test_set_midprice = random_subset(rest_set,"Y_midprice",20000,RT = False)
+test_set_midprice = random_subset(rest_set,"Y_midprice",20000,RT = False)[0]
 
 #create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
