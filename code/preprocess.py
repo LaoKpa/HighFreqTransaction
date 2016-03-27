@@ -106,11 +106,11 @@ def feature5 (data):
 ##################################### feature 6 #######################################
 volbidlist = range(4,64,6)
 volasklist = range(7,67,6)
-def feature6(data,delta = 10):
+def feature6(data,delta = 30):
     v6_1 = pd.concat([data.ix[:,bidlist],data.ix[:,asklist]],axis=1).diff(periods = delta, axis = 0).ix[delta:,:]/delta
     v6_2 = pd.concat([data.ix[:,volbidlist],data.ix[:,volasklist]],axis=1).diff(periods = delta, axis = 0).ix[delta:,:]/delta
     v6 = pd.concat([v6_1,v6_2],axis = 1)
-    v6 = pd.concat([v6,pd.DataFrame(index=range(0,10), columns=v6.columns.values)],axis = 0)
+    v6 = pd.concat([v6,pd.DataFrame(index=range(0,delta), columns=v6.columns.values)],axis = 0)
     v6.index =range(data.shape[0])
     v6.columns = ["Deriv "+ x for x in bidpc_name]+["Deriv "+ x for x in askpc_name]+["Deriv "+ x for x in bidsz_name]+["Deriv "+ x for x in asksz_name]
     return v6;
@@ -226,6 +226,7 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
     ret = dataset.loc[np.sort(list(temp)),:]
     rest_data = dataset.loc[np.sort(list(rest_ind)),:]
     return ret,rest_data
+
 ######### preprocession script ##########
 tmp = feature2_2(data1)
 list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),label_midprice(tmp,step=30),label_spread(data1,step=30)]
