@@ -1,3 +1,6 @@
+import os
+os.chdir("~/Desktop/finance")
+train1 = pd.read_csv("train_set_midprice.csv")
 labels = train1['Y_midprice'].values
 print(labels)
 featurelist = range(0,train1.shape[1]-2)
@@ -25,9 +28,6 @@ print("The best parameters are %s with a score of %0.2f"
 
 import pickle
 #write grid
-with open('/Users/haolyu/Desktop/STAT222/rf_grid.pkl', "wb") as fp:
+with open('~/Desktop/finance/rf_grid.pkl', "wb") as fp:
     pickle.dump(grid, fp)
 
-# Load model from file
-with open('/Users/haolyu/Desktop/STAT222/rf_grid.pkl', "rb") as fp:
-    grid_load = pickle.load(fp)
