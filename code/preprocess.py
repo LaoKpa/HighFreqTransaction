@@ -236,9 +236,12 @@ data_9to11 = data_all.head(203350)
 train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (3,3,1))
 test_set_midprice = random_subset(rest_set,"Y_midprice",50000,RT = False)[0]
 
+predict_data = data_all.ix[203350: ,]
 #create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
 test_set_midprice.to_csv("../data/test_set_midprice.csv",index = False)
+predict_data.to_csv("../data/predict_data.csv",index = False)
+
 
 
 
