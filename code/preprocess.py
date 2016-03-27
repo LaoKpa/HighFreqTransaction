@@ -112,6 +112,7 @@ def feature6(data,delta = 10):
     v6 = pd.concat([v6_1,v6_2],axis = 1)
     v6 = pd.concat([v6,pd.DataFrame(index=range(0,10), columns=v6.columns.values)],axis = 0)
     v6.index =range(data.shape[0])
+    v6.columns = ["Deriv "+ x for x in bidpc_name]+["Deriv "+ x for x in askpc_name]+["Deriv "+ x for x in bidsz_name]+["Deriv "+ x for x in asksz_name]
     return v6;
 #v6= feature6(data1)
 #v6
@@ -231,8 +232,8 @@ list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], 
 data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
 data_9to11 = data_all.head(203350)
-train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (1,1,2))
-test_set_midprice = random_subset(rest_set,"Y_midprice",20000,RT = False)[0]
+train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (3,3,1))
+test_set_midprice = random_subset(rest_set,"Y_midprice",50000,RT = False)[0]
 
 #create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
