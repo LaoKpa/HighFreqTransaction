@@ -231,8 +231,8 @@ list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], 
 data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
 data_9to11 = data_all.head(203350)
-train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (1,1,2))
-test_set_midprice = random_subset(rest_set,"Y_midprice",20000,RT = False)[0]
+train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (3,3,1))
+test_set_midprice = random_subset(rest_set,"Y_midprice",50000,RT = False)[0]
 
 #create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
