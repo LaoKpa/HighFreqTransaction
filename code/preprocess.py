@@ -112,6 +112,7 @@ def feature6(data,delta = 10):
     v6 = pd.concat([v6_1,v6_2],axis = 1)
     v6 = pd.concat([v6,pd.DataFrame(index=range(0,10), columns=v6.columns.values)],axis = 0)
     v6.index =range(data.shape[0])
+    v6.columns = ["Deriv "+ x for x in bidpc_name]+["Deriv "+ x for x in askpc_name]+["Deriv "+ x for x in bidsz_name]+["Deriv "+ x for x in asksz_name]
     return v6;
 #v6= feature6(data1)
 #v6

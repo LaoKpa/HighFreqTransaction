@@ -5,6 +5,9 @@ from sklearn.ensemble import RandomForestClassifier
 import pickle
 import math
 
+import os
+os.chdir("~/Desktop/finance")
+train1 = pd.read_csv("train_set_midprice.csv")
 
 labels = train1['Y_midprice'].values
 print(labels)
@@ -29,9 +32,6 @@ print("The best parameters are %s with a score of %0.2f"
 
 
 #write grid
-with open('/Users/haolyu/Desktop/STAT222/rf_grid.pkl', "wb") as fp:
+with open('~/Desktop/finance/rf_grid.pkl', "wb") as fp:
     pickle.dump(grid, fp)
 
-# Load model from file
-with open('/Users/haolyu/Desktop/STAT222/rf_grid.pkl', "rb") as fp:
-    grid_load = pickle.load(fp)
