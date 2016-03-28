@@ -260,13 +260,23 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
         rest_data = dataset.loc[np.sort(list(rest_indx)),:]
         return ret,rest_data
     n_u,n_d,n_s = int(ratio[0]/sum(ratio)*size),int(ratio[1]/sum(ratio)*size),int(ratio[2]/sum(ratio)*size )
+    xin = data["Y_spread"].value_counts()
+    num_u,num_d,num_s = xin.loc["upward"],xin.loc["downward"],xin.loc["stationary"]
+    r_u,r_d,r_s = False,False,False
+    if (num_u < n_u):
+        r_u = True
+    if (num_d < n_d):
+        r_d = True
+    if (num_s < n_s):
+        r_s = True
+        
     ind_u = list(dataset[dataset[label]=="upward"].index)
     ind_d = list(dataset[dataset[label]=="downward"].index)
     ind_s = list(dataset[dataset[label]=="stationary"].index)
     indice = np.array([])
-    indice = np.append(indice,np.random.choice(ind_u,replace=False,size = n_u))
-    indice = np.append(indice,np.random.choice(ind_d,replace=False,size = n_d))
-    indice = np.append(indice,np.random.choice(ind_s,replace=False,size = n_s))
+    indice = np.append(indice,np.random.choice(ind_u,replace=r_u,size = n_u))
+    indice = np.append(indice,np.random.choice(ind_d,replace=r_d,size = n_d))
+    indice = np.append(indice,np.random.choice(ind_s,replace=r_s,size = n_s))
     temp = set(np.sort(indice).astype(int))
     rest_ind = set(dataset.index) - temp
     ret = dataset.loc[np.sort(list(temp)),:]
