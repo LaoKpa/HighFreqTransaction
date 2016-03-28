@@ -260,7 +260,7 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
         rest_data = dataset.loc[np.sort(list(rest_indx)),:]
         return ret,rest_data
     n_u,n_d,n_s = int(ratio[0]/sum(ratio)*size),int(ratio[1]/sum(ratio)*size),int(ratio[2]/sum(ratio)*size )
-    xin = data["Y_spread"].value_counts()
+    xin = dataset[label].value_counts()
     num_u,num_d,num_s = xin.loc["upward"],xin.loc["downward"],xin.loc["stationary"]
     r_u,r_d,r_s = False,False,False
     if (num_u < n_u):
@@ -301,108 +301,108 @@ predict_data.to_csv("../data/predict_data.csv",index = False)
 #### Logistic Regression ##########
 
 #change the label value to 1 or 0 depends on the type desired: "upward","stationary","downwards",respectively
-def subset_by_label (data, label, subset):
-    '''
-    Input
-    ----
-    label - by midprice or by spread_crossing; "Y_midprice" or "Y_spread"
-    subet - subset by label "upword", "downward" or "stationary"
+# def subset_by_label (data, label, subset):
+#     '''
+#     Input
+#     ----
+#     label - by midprice or by spread_crossing; "Y_midprice" or "Y_spread"
+#     subet - subset by label "upword", "downward" or "stationary"
     
-    Output
-    ---
-    the data frame with desired label "upward"/"downward"/"stationary" = 1
-    '''
-    data2 = data.copy()
-    data2.loc[data2[label]!=subset,label]=0
-    data2.loc[data2[label]==subset,label]=1
-    return data2;
+#     Output
+#     ---
+#     the data frame with desired label "upward"/"downward"/"stationary" = 1
+#     '''
+#     data2 = data.copy()
+#     data2.loc[data2[label]!=subset,label]=0
+#     data2.loc[data2[label]==subset,label]=1
+#     return data2;
 
-def logit_model(label_data,label):
-    '''
-    Input
-    ---
-    label_data - a data frame with one concentrate of label "up"/"down"/"stationary"
-    label - label type "Y_midprice" or "Y_spread"
+# def logit_model(label_data,label):
+#     '''
+#     Input
+#     ---
+#     label_data - a data frame with one concentrate of label "up"/"down"/"stationary"
+#     label - label type "Y_midprice" or "Y_spread"
     
-    Output
-    ---
-    The estimates of parameters of the logestic model
-    '''
-    intercept = pd.DataFrame(data=np.ones(label_data.shape[0]))
-    intercept.columns = ["Intercept"]
-    feature = label_data.ix[:,range(0,134)]
-    feature=feature.set_index(np.array(range(feature.shape[0])))
-    design = pd.concat([intercept,feature],axis=1,join_axes=[intercept.index])
-    Y = label_data["Y_midprice"].astype(int)
-    #model = LogisticRegression()
-    #model = model.fit(design, Y)
-    return design,Y;
+#     Output
+#     ---
+#     The estimates of parameters of the logestic model
+#     '''
+#     intercept = pd.DataFrame(data=np.ones(label_data.shape[0]))
+#     intercept.columns = ["Intercept"]
+#     feature = label_data.ix[:,range(0,134)]
+#     feature=feature.set_index(np.array(range(feature.shape[0])))
+#     design = pd.concat([intercept,feature],axis=1,join_axes=[intercept.index])
+#     Y = label_data["Y_midprice"].astype(int)
+#     #model = LogisticRegression()
+#     #model = model.fit(design, Y)
+#     return design,Y;
 
-#return the coefficients of the model
-def logit_coef (design,model):
-    a=np.array(design.columns)
-    b=np.transpose(model.coef_)
-    b=np.ravel(b)
-    beta = pd.DataFrame({"parameter":a,"coefficients":b})
-    return beta;
+# #return the coefficients of the model
+# def logit_coef (design,model):
+#     a=np.array(design.columns)
+#     b=np.transpose(model.coef_)
+#     b=np.ravel(b)
+#     beta = pd.DataFrame({"parameter":a,"coefficients":b})
+#     return beta;
 
-up_data = subset_by_label(train_set_midprice,"Y_midprice","upward") 
-down_data = subset_by_label(train_set_midprice,"Y_midprice","downward")
-stat_data = subset_by_label(train_set_midprice,"Y_midprice","stationary") 
+# up_data = subset_by_label(train_set_midprice,"Y_midprice","upward") 
+# down_data = subset_by_label(train_set_midprice,"Y_midprice","downward")
+# stat_data = subset_by_label(train_set_midprice,"Y_midprice","stationary") 
 
-design_up, Y_up = logit_model(up_data,"Y_midprice")
-model= LogisticRegression()
-model_up = model.fit(design_up, Y_up)
+# design_up, Y_up = logit_model(up_data,"Y_midprice")
+# model= LogisticRegression()
+# model_up = model.fit(design_up, Y_up)
 
-design_down, Y_down = logit_model(down_data,"Y_midprice")
-model= LogisticRegression()
-model_down = model.fit(design_down, Y_down)
+# design_down, Y_down = logit_model(down_data,"Y_midprice")
+# model= LogisticRegression()
+# model_down = model.fit(design_down, Y_down)
 
-design_stat, Y_stat = logit_model(stat_data,"Y_midprice")
-model= LogisticRegression()
-model_stat = model.fit(design_stat, Y_stat)
+# design_stat, Y_stat = logit_model(stat_data,"Y_midprice")
+# model= LogisticRegression()
+# model_stat = model.fit(design_stat, Y_stat)
 
-beta_up = logit_coef(design_up,model_up)
-beta_down = logit_coef(design_down,model_down)
-beta_stat = logit_coef(design_stat,model_stat)
-#beta_up.head(10)
-#beta_down.head(10)
-#beta_stat.head(10)
+# beta_up = logit_coef(design_up,model_up)
+# beta_down = logit_coef(design_down,model_down)
+# beta_stat = logit_coef(design_stat,model_stat)
+# #beta_up.head(10)
+# #beta_down.head(10)
+# #beta_stat.head(10)
 
-#check the accuracy on the training set
-model_up.score(design_up,Y_up) 
-model_down.score(design_down,Y_down) 
-model_stat.score(design_stat,Y_stat) 
+# #check the accuracy on the training set
+# model_up.score(design_up,Y_up) 
+# model_down.score(design_down,Y_down) 
+# model_stat.score(design_stat,Y_stat) 
 
 
-##try on test sets
-#make test set based on label
-up_test = subset_by_label(test_set_midprice,"Y_midprice","upward") #30000,129
-down_test = subset_by_label(test_set_midprice,"Y_midprice","downward") #30000,129
-stat_test = subset_by_label(test_set_midprice,"Y_midprice","stationary") #30000,129
-#use the train model to predict Y of test set
-design_up_test, Y_up_test = logit_model(up_test,"Y_midprice")
-design_down_test, Y_down_test = logit_model(down_test,"Y_midprice")
-design_stat_test, Y_stat_test = logit_model(stat_test,"Y_midprice")
-#for upward
-predicted_up = model_up.predict(design_up_test)
-probs_up = model_up.predict_proba(design_up_test)
-#for downward
-predicted_down = model_down.predict(design_down_test)
-probs_down = model_down.predict_proba(design_down_test)
-#for stationary
-predicted_stat = model_stat.predict(design_stat_test)
-probs_stat = model_stat.predict_proba(design_stat_test)
+# ##try on test sets
+# #make test set based on label
+# up_test = subset_by_label(test_set_midprice,"Y_midprice","upward") #30000,129
+# down_test = subset_by_label(test_set_midprice,"Y_midprice","downward") #30000,129
+# stat_test = subset_by_label(test_set_midprice,"Y_midprice","stationary") #30000,129
+# #use the train model to predict Y of test set
+# design_up_test, Y_up_test = logit_model(up_test,"Y_midprice")
+# design_down_test, Y_down_test = logit_model(down_test,"Y_midprice")
+# design_stat_test, Y_stat_test = logit_model(stat_test,"Y_midprice")
+# #for upward
+# predicted_up = model_up.predict(design_up_test)
+# probs_up = model_up.predict_proba(design_up_test)
+# #for downward
+# predicted_down = model_down.predict(design_down_test)
+# probs_down = model_down.predict_proba(design_down_test)
+# #for stationary
+# predicted_stat = model_stat.predict(design_stat_test)
+# probs_stat = model_stat.predict_proba(design_stat_test)
 
-##the classifier is predicting a 1 (having an affair) any time the probability 
-# in the second column is greater than 0.5.
+# ##the classifier is predicting a 1 (having an affair) any time the probability 
+# # in the second column is greater than 0.5.
 
-#find the actual predicted label, Upward, Downward or Stationary, by comparing probability
-label_prob = pd.DataFrame({"upward":probs_up[:,1],"downward":probs_down[:,1],"stationary":probs_stat[:,1]})
-predicted_label = label_prob.idxmax(axis=1)
-pred_result = pd.concat([label_prob,predicted_label],axis=1)
-pred_result.columns=("P(D=1)","P(S=1)","P(U=1)","Pred_label")
-#pred_result.head(10)
+# #find the actual predicted label, Upward, Downward or Stationary, by comparing probability
+# label_prob = pd.DataFrame({"upward":probs_up[:,1],"downward":probs_down[:,1],"stationary":probs_stat[:,1]})
+# predicted_label = label_prob.idxmax(axis=1)
+# pred_result = pd.concat([label_prob,predicted_label],axis=1)
+# pred_result.columns=("P(D=1)","P(S=1)","P(U=1)","Pred_label")
+# #pred_result.head(10)
 
-##Print Evaluation report
-print(metrics.classification_report(test_set_midprice["Y_midprice"], pred_result["Pred_label"]))
+# ##Print Evaluation report
+# print(metrics.classification_report(test_set_midprice["Y_midprice"], pred_result["Pred_label"]))
