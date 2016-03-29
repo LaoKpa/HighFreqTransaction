@@ -8,10 +8,8 @@ Created on Fri Mar 18 22:00:29 2016
 """
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from patsy import dmatrices
-from sklearn import metrics
 data1 = pd.read_csv("../data/AAPL_05222012_0930_1300_LOB_2.csv")
+data1=data1.dropna()
 #data1 = pd.read_csv("AAPL_05222012_0930_1300_LOB_2.csv")
 # column name
 col1 = list(data1.columns.values)[2:62]
@@ -113,7 +111,7 @@ def feature6(data,delta = 30):
     v6_1 = pd.concat([data.ix[:,bidlist],data.ix[:,asklist]],axis=1).diff(periods = delta, axis = 0).ix[delta:,:]/delta
     v6_2 = pd.concat([data.ix[:,volbidlist],data.ix[:,volasklist]],axis=1).diff(periods = delta, axis = 0).ix[delta:,:]/delta
     v6 = pd.concat([v6_1,v6_2],axis = 1)
-    v6 = pd.concat([v6,pd.DataFrame(index=range(0,delta), columns=v6.columns.values)],axis = 0)
+    v6 = pd.concat([pd.DataFrame(index=range(0,delta), columns=v6.columns.values),v6],axis = 0)
     v6.index =range(data.shape[0])
     v6.columns = ["Deriv "+ x for x in bidpc_name]+["Deriv "+ x for x in askpc_name]+["Deriv "+ x for x in bidsz_name]+["Deriv "+ x for x in asksz_name]
     return v6;
@@ -260,7 +258,7 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
         rest_data = dataset.loc[np.sort(list(rest_indx)),:]
         return ret,rest_data
     n_u,n_d,n_s = int(ratio[0]/sum(ratio)*size),int(ratio[1]/sum(ratio)*size),int(ratio[2]/sum(ratio)*size )
-    xin = dataset[label].value_counts()
+    xin = dataset["Y_spread"].value_counts()
     num_u,num_d,num_s = xin.loc["upward"],xin.loc["downward"],xin.loc["stationary"]
     r_u,r_d,r_s = False,False,False
     if (num_u < n_u):
@@ -285,124 +283,31 @@ def random_subset(dataset,label,size,ratio = (1,1,2),RT = True):
 
 ######### preprocession script ##########
 tmp = feature2_2(data1)
-list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1),volumn_ratio(data1),mid_diff(tmp,delta=30),aroon(tmp,delta=30),mid_sd(tmp,30),label_midprice(tmp,step=30),label_spread(data1,step=30)]
+
+mid_step = 40
+list_df = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1,40),volumn_ratio(data1),mid_diff(tmp,delta=40),aroon(tmp,delta=40),mid_sd(tmp,40),label_midprice(tmp,step=40),label_spread(data1,step=40)]
 data_all = merge_dataset(list_df)
 # delete times (time 9:30-11:00)
 data_9to11 = data_all.head(203350)
-train_set_midprice,rest_set = random_subset(data_9to11,"Y_midprice",30000, (3,3,1))
-test_set_midprice = random_subset(rest_set,"Y_midprice",50000,RT = False)[0]
+data_9to11 = data_9to11.dropna()
+
+mid_step = 100
+list_df_spread = [data1.ix[:,np.concatenate((bidlist,asklist,volbidlist,volasklist))], feature2_1(data1), feature2_2(data1), feature3(data1), feature4(data1), feature5(data1),feature6(data1,mid_step),volumn_ratio(data1),mid_diff(tmp,delta=mid_step),aroon(tmp,delta=mid_step),mid_sd(tmp,mid_step),label_midprice(tmp,step=mid_step),label_spread(data1,step=mid_step)]
+data_all_spread = merge_dataset(list_df_spread)
+# delete times (time 9:30-11:00)
+data_9to11_spread = data_all_spread.head(203350)
+data_9to11_spread = data_9to11_spread.dropna()
+
+train_set_midprice,rest_set_midprice = random_subset(data_9to11,"Y_midprice",30000, (3,3,1))
+test_set_midprice = random_subset(rest_set_midprice,"Y_midprice",50000,RT = False)[0]
+train_set_spread, rest_set_spread = random_subset(data_9to11_spread,"Y_spread",30000, (1,1,2))
+test_set_spread = random_subset(rest_set_spread,"Y_spread",50000,RT = False)[0]
 
 predict_data = data_all.ix[203350: ,]
+predict_data = predict_data.dropna()
 #create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
 test_set_midprice.to_csv("../data/test_set_midprice.csv",index = False)
+train_set_spread.to_csv("../data/train_set_spread.csv",index = False)
+test_set_spread.to_csv("../data/test_set_spread.csv",index = False)
 predict_data.to_csv("../data/predict_data.csv",index = False)
-
-#### Logistic Regression ##########
-
-#change the label value to 1 or 0 depends on the type desired: "upward","stationary","downwards",respectively
-# def subset_by_label (data, label, subset):
-#     '''
-#     Input
-#     ----
-#     label - by midprice or by spread_crossing; "Y_midprice" or "Y_spread"
-#     subet - subset by label "upword", "downward" or "stationary"
-    
-#     Output
-#     ---
-#     the data frame with desired label "upward"/"downward"/"stationary" = 1
-#     '''
-#     data2 = data.copy()
-#     data2.loc[data2[label]!=subset,label]=0
-#     data2.loc[data2[label]==subset,label]=1
-#     return data2;
-
-# def logit_model(label_data,label):
-#     '''
-#     Input
-#     ---
-#     label_data - a data frame with one concentrate of label "up"/"down"/"stationary"
-#     label - label type "Y_midprice" or "Y_spread"
-    
-#     Output
-#     ---
-#     The estimates of parameters of the logestic model
-#     '''
-#     intercept = pd.DataFrame(data=np.ones(label_data.shape[0]))
-#     intercept.columns = ["Intercept"]
-#     feature = label_data.ix[:,range(0,134)]
-#     feature=feature.set_index(np.array(range(feature.shape[0])))
-#     design = pd.concat([intercept,feature],axis=1,join_axes=[intercept.index])
-#     Y = label_data["Y_midprice"].astype(int)
-#     #model = LogisticRegression()
-#     #model = model.fit(design, Y)
-#     return design,Y;
-
-# #return the coefficients of the model
-# def logit_coef (design,model):
-#     a=np.array(design.columns)
-#     b=np.transpose(model.coef_)
-#     b=np.ravel(b)
-#     beta = pd.DataFrame({"parameter":a,"coefficients":b})
-#     return beta;
-
-# up_data = subset_by_label(train_set_midprice,"Y_midprice","upward") 
-# down_data = subset_by_label(train_set_midprice,"Y_midprice","downward")
-# stat_data = subset_by_label(train_set_midprice,"Y_midprice","stationary") 
-
-# design_up, Y_up = logit_model(up_data,"Y_midprice")
-# model= LogisticRegression()
-# model_up = model.fit(design_up, Y_up)
-
-# design_down, Y_down = logit_model(down_data,"Y_midprice")
-# model= LogisticRegression()
-# model_down = model.fit(design_down, Y_down)
-
-# design_stat, Y_stat = logit_model(stat_data,"Y_midprice")
-# model= LogisticRegression()
-# model_stat = model.fit(design_stat, Y_stat)
-
-# beta_up = logit_coef(design_up,model_up)
-# beta_down = logit_coef(design_down,model_down)
-# beta_stat = logit_coef(design_stat,model_stat)
-# #beta_up.head(10)
-# #beta_down.head(10)
-# #beta_stat.head(10)
-
-# #check the accuracy on the training set
-# model_up.score(design_up,Y_up) 
-# model_down.score(design_down,Y_down) 
-# model_stat.score(design_stat,Y_stat) 
-
-
-# ##try on test sets
-# #make test set based on label
-# up_test = subset_by_label(test_set_midprice,"Y_midprice","upward") #30000,129
-# down_test = subset_by_label(test_set_midprice,"Y_midprice","downward") #30000,129
-# stat_test = subset_by_label(test_set_midprice,"Y_midprice","stationary") #30000,129
-# #use the train model to predict Y of test set
-# design_up_test, Y_up_test = logit_model(up_test,"Y_midprice")
-# design_down_test, Y_down_test = logit_model(down_test,"Y_midprice")
-# design_stat_test, Y_stat_test = logit_model(stat_test,"Y_midprice")
-# #for upward
-# predicted_up = model_up.predict(design_up_test)
-# probs_up = model_up.predict_proba(design_up_test)
-# #for downward
-# predicted_down = model_down.predict(design_down_test)
-# probs_down = model_down.predict_proba(design_down_test)
-# #for stationary
-# predicted_stat = model_stat.predict(design_stat_test)
-# probs_stat = model_stat.predict_proba(design_stat_test)
-
-# ##the classifier is predicting a 1 (having an affair) any time the probability 
-# # in the second column is greater than 0.5.
-
-# #find the actual predicted label, Upward, Downward or Stationary, by comparing probability
-# label_prob = pd.DataFrame({"upward":probs_up[:,1],"downward":probs_down[:,1],"stationary":probs_stat[:,1]})
-# predicted_label = label_prob.idxmax(axis=1)
-# pred_result = pd.concat([label_prob,predicted_label],axis=1)
-# pred_result.columns=("P(D=1)","P(S=1)","P(U=1)","Pred_label")
-# #pred_result.head(10)
-
-# ##Print Evaluation report
-# print(metrics.classification_report(test_set_midprice["Y_midprice"], pred_result["Pred_label"]))
