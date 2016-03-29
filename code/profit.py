@@ -2,6 +2,27 @@
 Given a buy and sell strategy, calculate the profits base on the predicted labels and the profit based on the true labels.
 
 '''
+import numpy as np
+import pandas as pd
+import scipy
+import sklearn as sk
+from sklearn.cross_validation import cross_val_score
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.grid_search import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm 
+from sklearn.metrics import confusion_matrix 
+from sklearn.cross_validation import KFold
+from sklearn import cross_validation
+from sklearn import metrics
+import pickle
+import math
+
+def get_lb_ft(df,label):
+    labels = df[label].values
+    featurelist  = list(set(df.columns.values) - set(["Y_midprice", "Y_spread"]))
+    features = df[featurelist].values
+    return features, labels
 
 def calcProfit_help (profit_df, step, label ,Thr_val = False):
     # if upward
