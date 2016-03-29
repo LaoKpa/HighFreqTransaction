@@ -52,18 +52,32 @@ def calcProfit_help (profit_df, step, label ,Thr_val = False):
     
     if (Thr_val):
         return profit_pred, sum(profit_pred),profit_true, sum(profit_true)
-    return profit_pred, sum(profit_pred)
+    #return profit_df["ASK_PRICE1"][0:-30]
+    return sum(profit_pred), profit_pred
 
 
 def calcProfit(predict_data,step,label,clf,Thr_val = False):
-    
+    '''
+    Input
+    ---------
+    predict_data: predict frame including all features and labels
+    step: the step we chose. defaulf for midprice is 30 and for spread is 100
+    label: Y_midprice or Y_spread
+    clf: the best classifier trained in each model
+    Thr_val: Do you want to return the Theoretical value?
+
+    return:
+    ---------
+    profit vector; sum of profits;(if Thr_val == true, profit vector; sum of profits in theory)
+    labels from the prediction.
+    '''
     predict_feature,predict_label  = get_lb_ft(predict_data,label)
     temp_pred = clf.predict(predict_feature)
     new_label = "pre_label_" + label[2:]
     my_label = pd.DataFrame({new_label:temp_pred})
-    profit_df = pd.concat([predict_sub, my_label],axis = 1).loc[:,["BID_PRICE1","ASK_PRICE1",label, new_label]]
+    profit_df = pd.concat([predict_data, my_label],axis = 1).loc[:,["BID_PRICE1","ASK_PRICE1",label, new_label]]
     
-    return calcProfit_help (profit_df, step, label ,Thr_val)
+    return calcProfit_help (profit_df, step, label ,Thr_val),temp_pred
 
 
 
