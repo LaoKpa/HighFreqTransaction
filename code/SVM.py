@@ -13,6 +13,7 @@ from sklearn import cross_validation
 from sklearn import metrics
 import pickle
 import math
+import profit as pf
 
 ######################### get label and feature from set ###############################
 def get_lb_ft(df,label):

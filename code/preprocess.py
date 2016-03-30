@@ -302,12 +302,13 @@ train_set_midprice,rest_set_midprice = random_subset(data_9to11,"Y_midprice",300
 test_set_midprice = random_subset(rest_set_midprice,"Y_midprice",50000,RT = False)[0]
 train_set_spread, rest_set_spread = random_subset(data_9to11_spread,"Y_spread",30000, (1,1,2))
 test_set_spread = random_subset(rest_set_spread,"Y_spread",50000,RT = False)[0]
-
-predict_data = data_all.ix[203350: ,]
-predict_data = predict_data.dropna()
+predict_data_midprice = data_all.ix[203350: ,]
+predict_data_spread = data_all_spread.ix[203350: ,]
+#predict_data = predict_data.dropna()
 #create train_set and test_set
 train_set_midprice.to_csv("../data/train_set_midprice.csv",index = False)
 test_set_midprice.to_csv("../data/test_set_midprice.csv",index = False)
 train_set_spread.to_csv("../data/train_set_spread.csv",index = False)
 test_set_spread.to_csv("../data/test_set_spread.csv",index = False)
-predict_data.to_csv("../data/predict_data.csv",index = False)
+predict_data_midprice.to_csv("../data/predict_data_midprice.csv",index = False)
+predict_data_spread.to_csv("../data/predict_data_spread.csv",index = False)

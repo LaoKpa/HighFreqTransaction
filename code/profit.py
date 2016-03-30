@@ -27,16 +27,16 @@ def get_lb_ft(df,label):
 def calcProfit_help (profit_df, step, label ,Thr_val = False):
     # if upward
     new_label = "pre_label_" + label[2:]
-    ask_t2 = pd.Series(0, index= range(profit_df.shape[0]))
-    ask_t2[step:] = profit_df["ASK_PRICE1"][0:-step]
-    long_profit = profit_df["BID_PRICE1"] - ask_t2
-    long_profit.ix[0:step,] = 0
+    bid_t2 = pd.Series(0, index= range(profit_df.shape[0]))
+    bid_t2[0:-step] = profit_df["BID_PRICE1"][step:]
+    long_profit = bid_t2 - profit_df["ASK_PRICE1"]
+    long_profit[-step:] = 0
 
     # if downward
-    bid_t2 = pd.Series(0, index= range(profit_df.shape[0]))
-    bid_t2[step:] = profit_df["BID_PRICE1"][0:-step]
-    short_profit = bid_t2 - profit_df["ASK_PRICE1"]
-    short_profit.ix[0:step,] = 0
+    ask_t2 = pd.Series(0, index= range(profit_df.shape[0]))
+    ask_t2[0: -step] = profit_df["ASK_PRICE1"][step:]
+    short_profit = profit_df["BID_PRICE1"]- ask_t2
+    short_profit[-step:] = 0
 
     profit_pred = pd.Series(0, index= range(profit_df.shape[0]))
     msk_up = (profit_df[new_label] == "upward")
@@ -52,8 +52,9 @@ def calcProfit_help (profit_df, step, label ,Thr_val = False):
     
     if (Thr_val):
         return profit_pred, sum(profit_pred),profit_true, sum(profit_true)
-    #return profit_df["ASK_PRICE1"][0:-30]
-    return sum(profit_pred), profit_pred
+    return bid_t2 - profit_df["ASK_PRICE1"]
+    # return profit_true, sum(profit_true)
+    return profit_pred,sum(profit_pred)
 
 
 def calcProfit(predict_data,step,label,clf,Thr_val = False):
@@ -79,8 +80,15 @@ def calcProfit(predict_data,step,label,clf,Thr_val = False):
     
     return calcProfit_help (profit_df, step, label ,Thr_val),temp_pred
 
-
-
+# You can use it as followed
+# import and Use it as this:
+# import profit as pf
+# (a,b,c,d),e = pf.calcProfit(predict_data,100,"Y_spread",clf2,Thr_val = True)
+#  a -- predit profit vector
+# b -- predict profit
+# c -- profit vector from true label
+# d -- profit from true label
+# e -- predicted label
 
 
 
